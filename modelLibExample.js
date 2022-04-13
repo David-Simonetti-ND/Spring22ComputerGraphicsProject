@@ -13,40 +13,54 @@ const WIDTH = window.innerWidth - 10;
 const HEIGHT = window.innerHeight - 20;
 
 let models = {};
-let Mario;
-let Barrel;
+let Mario = new Model();
+let Barrel = new Model();
 
 let allColliders = [];
 
-function loadAllModels() {
-	model.loadModel(
-		"./models/hat.png",
-		"./models/Mario.FBX",
-		[-30, -25, 0.0],
-		[0.01, 0.01, 0.01],
-		[0, 0, 0],
-		[0, 0, 0],
-		"MARIO",
-		0,
-		models,
-		scene
-	);
+async function loadAllModels() {
+	
+	return new Promise( async (resolve) => {
+		Mario.setModel(
+			await Promise.resolve( 
+				model.loadModel(
+					"./models/hat.png",
+					"./models/Mario.FBX",
+					[-30, -25, 0.0],
+					[0.01, 0.01, 0.01],
+					[0, 0, 0],
+					[0, 0, 0],
+					"MARIO",
+					0,
+					models,
+					scene
+				)
+			)
+		);
 
-	model.loadModel(
-		"./models/barrel.png",
-		"./models/barrel.obj",
-		[0, 0, 0],
-		[0.05, 0.05, 0.05],
-		[0, 0, 0],
-		[Math.PI / 2, 0, 0],
-		"BARREL",
-		1,
-		models,
-		scene
-	);
+		Barrel.setModel(
+			await Promise.resolve( 
+				model.loadModel(
+					"./models/barrel.png",
+					"./models/barrel.obj",
+					[0, 0, 0],
+					[0.05, 0.05, 0.05],
+					[0, 0, 0],
+					[Math.PI / 2, 0, 0],
+					"BARREL",
+					1,
+					models,
+					scene
+				)
+			)
+		);
+
+		resolve();
+	});
+
 }
 
-window.onload = function init() {
+window.onload = async function init() {
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color(0xffffff);
 
@@ -63,7 +77,8 @@ window.onload = function init() {
 	trackballControls = new TrackballControls(camera, renderer.domElement);
 	document.body.addEventListener("keydown", handleKeys);
 
-	loadAllModels();
+	await Promise.resolve(loadAllModels());
+	
 	animate();
 };
 
@@ -72,24 +87,12 @@ function animate() {
 	renderer.render(scene, camera);
     requestAnimationFrame(animate);
     
-    if (start == 0) {
-        checkCollisions();
-		setBoundingBox();
-    }
-}
-
-// set the models from the loaded model, uses the sketchy way to bypass the async load
-function setAllModels() {
-	Mario = new Model();
-	Mario.setModel(models["MARIO"]);
-
-	Barrel = new Model();
-	Barrel.setModel(models["BARREL"]);
+	checkCollisions();
+	setBoundingBox();
 }
 
 function setBoundingBox() {
     allColliders = [];
-    
     // goes through the models and then creates a bounding box for each
     for (const [key, value] of Object.entries(models)) {
         let boundingBox = new THREE.Box3().setFromObject(value);
@@ -97,28 +100,20 @@ function setBoundingBox() {
     }
 }
 
-let start = 1;
 
 function handleKeys(event) {
 
-    // very sketchy way to get pass async loading of the models lol
-	if (start == 1) {
-		setAllModels();
-		start = 0;
-	}
-
-	
 	switch (event.keyCode) {
 		case 77: // m to spawn monkey
 			var temp = models["MARIO"].clone();
 			temp.position.x = Math.random() * 100 - 50;
 			temp.position.y = Math.random() * 100 - 50;
+			models["MARIO" + Object.keys(models).length] = temp;
 			scene.add(temp);
 			break;
 		case 65: // left arrow
 			Mario.translateModel([-2, 0, 0]);
 			Mario.rotateModel([0, (Math.PI * 3) / 2, 0]);
-
 			break;
 		case 87: // up arrow
 			Mario.translateModel([0, 2, 0]);
