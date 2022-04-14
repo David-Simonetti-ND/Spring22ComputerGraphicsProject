@@ -78,14 +78,6 @@ function animate() {
     }
 }
 
-// set the models from the loaded model, uses the sketchy way to bypass the async load
-function setAllModels() {
-	Mario = new Model();
-	Mario.setModel(models["MARIO"]);
-
-	Barrel = new Model();
-	Barrel.setModel(models["BARREL"]);
-}
 
 function setBoundingBox() {
     allColliders = [];
@@ -105,7 +97,9 @@ function handleKeys(event) {
 	if (start == 1) {
 		setAllModels();
 		start = 0;
-	}
+    }
+    
+
 
 	
 	switch (event.keyCode) {
@@ -125,12 +119,13 @@ function handleKeys(event) {
 			break;
 		case 68: // right arrow
 			Mario.translateModel([2, 0, 0]);
-			Mario.rotateModel([0, Math.PI / 2, 0]);
+            Mario.rotateModel([0, Math.PI / 2, 0]);
 
 			break;
 		case 83: // down arrow
 			Mario.translateModel([0, -2, 0]);
-			break;
+            break;
+        
 	}
 }
 
