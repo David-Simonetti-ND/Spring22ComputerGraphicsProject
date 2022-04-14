@@ -33,7 +33,19 @@ export class Model {
 		this.model.position.y += offset[1];
 		this.model.position.z += offset[2];
 		this.BoundingBox = new THREE.Box3().setFromObject(this.model);
-	}
+    }
+    
+    setPosition(position) {
+        this.model.position.x = position[0];
+        this.model.position.y = position[1];
+        this.model.position.z = position[2];
+        this.BoundingBox = new THREE.Box3().setFromObject(this.model);
+    }
+
+    setPositionY(y) {
+        this.model.position.y = y;
+        this.BoundingBox = new THREE.Box3().setFromObject(this.model);
+    }
 
 	rotateModel(rotation) {
 		this.model.rotation.x = rotation[0];
