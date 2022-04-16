@@ -3,9 +3,11 @@ import { OBJLoader } from "./js/OBJLoader.js";
 import { FBXLoader } from "./js/FBXLoader.js";
 
 export class Model {
-	constructor(model, BoundingBox) {
+	constructor(model, BoundingBox, velocity) {
 		this.model = model;
 		this.BoundingBox = BoundingBox;
+		this.velocity = velocity;
+		this.lightSource = "";
 	}
 
 	setModel(model) {
@@ -14,6 +16,18 @@ export class Model {
 
 	getModel() {
 		return this.model;
+	}
+
+	setVelocity(veloctiy) {
+		this.velocity = veloctiy;
+	}
+
+	getVelocity() {
+		return this.velocity
+	}
+
+	getRotation() {
+		return this.model.rotation;
 	}
 
 	setBoundingBox(BoundingBox) {

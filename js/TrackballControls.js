@@ -503,11 +503,11 @@ class TrackballControls extends EventDispatcher {
 
 			} else if ( event.code === scope.keys[ STATE.ZOOM ] && ! scope.noZoom ) {
 
-				_keyState = STATE.ZOOM;
+				//_keyState = STATE.ZOOM;
 
 			} else if ( event.code === scope.keys[ STATE.PAN ] && ! scope.noPan ) {
 
-				_keyState = STATE.PAN;
+				//_keyState = STATE.PAN;
 
 			}
 
