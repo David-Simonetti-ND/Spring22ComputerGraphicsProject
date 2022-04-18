@@ -4,6 +4,8 @@ import { TrackballControls } from "./js/TrackballControls.js";
 import { Model } from "./modelLib.js";
 import * as model from "./model.js";
 
+let barrelSize = [0.1, 0.07, 0.1];
+let barrelSpeed = 4;
 var scene;
 var camera;
 var light;
@@ -35,10 +37,11 @@ async function loadAllModels() {
 			})
 		);
 
+		let marioSize = 0.025;
 		// set starting position
 		Mario.setModel(MarioModel);
 		Mario.translateModel([-30, -25, 0.0]);
-		Mario.scaleModel([0.01, 0.01, 0.01]);
+		Mario.scaleModel([marioSize, marioSize, marioSize]);
 		Mario.rotateModel([0, 0, 0]);
 		Mario.addToScene(scene);
 		Mario.setVelocity([0.0, 0.0, 0.0]);
@@ -59,12 +62,12 @@ async function loadAllModels() {
 
 		Barrel.setModel(BarrelModel);
 		Barrel.translateModel([0, 0, 0]);
-		Barrel.scaleModel([0.05, 0.035, 0.05]);
+		Barrel.scaleModel(barrelSize);
 		Barrel.rotateModel([Math.PI / 2, 0, 0]);
 
 		let cube = new THREE.Mesh(
 			new THREE.BoxGeometry(1, 1, 1),
-			new THREE.MeshBasicMaterial({ color: 0x00CC00 })
+			new THREE.MeshBasicMaterial({ color: 0x00cc00 })
 		);
 
 		Floor.setModel(cube);
@@ -87,9 +90,9 @@ window.onload = async function init() {
 	light = new THREE.AmbientLight(0x202020);
 	scene.add(light);
 
-	const plight = new THREE.PointLight( 0x888888, 3 );
-	plight.position.set( 50, 50, 50 );
-	scene.add( plight );
+	const plight = new THREE.PointLight(0x888888, 3);
+	plight.position.set(50, 50, 50);
+	scene.add(plight);
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(WIDTH, HEIGHT);
@@ -105,72 +108,95 @@ window.onload = async function init() {
 };
 
 function animate() {
-	//trackballControls.update();
+	// trackballControls.update();
 	renderer.render(scene, camera);
 	requestAnimationFrame(animate);
 
 	gravity();
 	checkCollisions();
 	updateModels();
-	updateCamera();
+    updateCamera();
 }
 
+// keys that are pressed
+let left = false;
+let right = false;
+let up = false;
+let down = false;
+let speed = 1;
 function handleKeys(event) {
+	// console.log(event.keyCode);
+
 	let curr_velocity = Mario.getVelocity();
-	if (event.type == "keydown")
-	{
+	if (event.type == "keydown") {
 		switch (event.keyCode) {
-			case 77: // m to spawn monkey
+			case 77: // m to spawn barrel
 				spawnNewBarrel();
 				break;
 			case 65: // left arrow
-				curr_velocity[0] = -0.4;
+				left = true;
+				curr_velocity[2] = speed;
 				Mario.setVelocity(curr_velocity);
 				break;
 			case 87: // up arrow
-				curr_velocity[2] = -0.4;
+				up = true;
+				curr_velocity[0] = -speed;
 				Mario.setVelocity(curr_velocity);
 				break;
 			case 68: // right arrow
-				curr_velocity[0] = 0.4;
+				right = true;
+				curr_velocity[2] = -speed;
 				Mario.setVelocity(curr_velocity);
 				break;
 			case 83: // down arrow
-				curr_velocity[2] = 0.4;
+				down = true;
+				curr_velocity[0] = speed;
 				Mario.setVelocity(curr_velocity);
 				break;
 			case 32: // spacebar
-				if (numberOfJumps >= 2)
-				{
+				if (numberOfJumps >= 2) {
 					break;
 				}
 				gravityAcceleration = -0.1;
 				gravityVelocity = 3;
 				numberOfJumps++;
 				break;
+			case 80: // p to switch to perspective
+				if (cameraPOV == 1) {
+					cameraPOV = 3;
+				} else {
+					cameraPOV = 1;
+				}
 		}
-	}
-	else if (event.type == "keyup")
-	{
+	} else if (event.type == "keyup") {
 		switch (event.keyCode) {
 			case 65: // left arrow
-				curr_velocity[0] = 0.0;
-				Mario.setVelocity(curr_velocity);
+				left = false;
+				if (!right) {
+					curr_velocity[2] = 0.0;
+					Mario.setVelocity(curr_velocity);
+				}
 				break;
 			case 87: // up arrow
-				curr_velocity[2] = 0.0;
-				Mario.setVelocity(curr_velocity);
+				up = false;
+				if (!down) {
+					curr_velocity[0] = 0.0;
+					Mario.setVelocity(curr_velocity);
+				}
 				break;
 			case 68: // right arrow
-				curr_velocity[0] = 0.0;
-				Mario.setVelocity(curr_velocity);
+				right = false;
+				if (!left) {
+					curr_velocity[2] = 0.0;
+					Mario.setVelocity(curr_velocity);
+				}
 				break;
 			case 83: // down arrow
-				curr_velocity[2] = 0.0;
-				Mario.setVelocity(curr_velocity);
-				break;
-			case 32:
-				gravityVelocity = 0;
+				down = false;
+				if (!up) {
+					curr_velocity[0] = 0.0;
+					Mario.setVelocity(curr_velocity);
+				}
 				break;
 		}
 	}
@@ -179,14 +205,17 @@ function handleKeys(event) {
 // goes through the list of bounding boxes and checks for collisions
 function checkCollisions() {
 	for (let i = 0; i < allBarrels.length; i++) {
-		if (allBarrels[i] == "")
-			{
-				continue;
-			}
+		if (allBarrels[i] == "") {
+			continue;
+		}
 		if (
 			allBarrels[i].getBoundingBox().intersectsBox(Mario.getBoundingBox())
 		) {
-			console.log("Collision");
+			decrementHP();
+			invincibility = true;
+			setTimeout(function () {
+				invincibility = false;
+			}, 1000);
 		}
 	}
 }
@@ -201,17 +230,16 @@ function gravity() {
 	if (Mario.getBoundingBox().intersectsBox(Floor.getBoundingBox())) {
 		gravityVelocity = 0;
 		gravityAcceleration = 0;
-        Mario.translateModel([0, -gravityVelocity, 0]);
-        Mario.setPositionY(-25.4);
+		Mario.translateModel([0, -gravityVelocity, 0]);
+		Mario.setPositionY(-25.4);
 		numberOfJumps = 0;
 	}
+
 	let x, y, z;
 	let key, barrel;
-	for (key in allBarrels)
-	{
+	for (key in allBarrels) {
 		barrel = allBarrels[key];
-		if (barrel == "")
-		{
+		if (barrel == "") {
 			continue;
 		}
 		x = barrel.model.rotation.x;
@@ -219,13 +247,13 @@ function gravity() {
 		z = barrel.model.rotation.z;
 		y = y + Math.PI / 32;
 		barrel.rotateModel([x, y, z]);
-		[x, y, z] = barrel.getVelocity()
+		[x, y, z] = barrel.getVelocity();
 		if (y == 0) {
 			continue;
 		}
 		y += -0.1;
 		if (barrel.getBoundingBox().intersectsBox(Floor.getBoundingBox())) {
-			y *= -3/5;
+			y *= -3 / 5;
 			barrel.setPositionY(-21);
 		}
 		if (y < 0 && y >= -0.01) {
@@ -239,147 +267,120 @@ function gravity() {
 
 function updateModels() {
 	let x, y, z;
-	[x, y, z] = Mario.getVelocity()
+	[x, y, z] = Mario.getVelocity();
 	Mario.translateModel([x, y, z]);
 	let rotate_angle = "";
-	if (x == 0.4 && z == 0.4)
-	{
+	if (x == speed && z == speed) {
 		rotate_angle = Math.PI / 4;
-	}
-	else if (x == 0.4 && z == 0.0)
-	{
+	} else if (x == speed && z == 0.0) {
 		rotate_angle = Math.PI / 2;
-	}
-	else if (x == 0.4 && z == -0.4)
-	{
-		rotate_angle = Math.PI * 3 / 4;
-	}
-	else if (x == 0.0 && z == -0.4)
-	{
+	} else if (x == speed && z == -speed) {
+		rotate_angle = (Math.PI * 3) / 4;
+	} else if (x == 0.0 && z == -speed) {
 		rotate_angle = Math.PI;
-	}
-	else if (x == 0.0 && z == 0.4)
-	{
+	} else if (x == 0.0 && z == speed) {
 		rotate_angle = Math.PI * 2;
 	}
-	if (x == -0.4 && z == 0.4)
-	{
-		rotate_angle = Math.PI * 7 /  4;
+	if (x == -speed && z == speed) {
+		rotate_angle = (Math.PI * 7) / 4;
+	} else if (x == -speed && z == 0.0) {
+		rotate_angle = (Math.PI * 3) / 2;
+	} else if (x == -speed && z == -speed) {
+		rotate_angle = (Math.PI * 5) / 4;
 	}
-	else if (x == -0.4 && z == 0.0)
-	{
-		rotate_angle = Math.PI * 3 / 2;
-	}
-	else if (x == -0.4 && z == -0.4)
-	{
-		rotate_angle = Math.PI * 5 / 4;
-	}
-	if (rotate_angle != "")
-	{
-		Mario.rotateModel( [0, rotate_angle, 0] );
-	}
-	let key, barrel;
-	for (key in allBarrels)
-	{
-		barrel = allBarrels[key];
-		if (barrel == "")
-		{
+	if (rotate_angle != "") {
+		Mario.rotateModel([0, rotate_angle, 0]);
+    }
+    
+
+	
+	for(let i = 0; i < allBarrels.length; i++) {
+		let barrel = allBarrels[i];
+
+		if (barrel == "") {
 			continue;
 		}
-		if (Math.abs(barrel.model.position.x) >= 150 || Math.abs(barrel.model.position.z) >= 150)
-		{
-			scene.remove(barrel);
-			if (barrel.lightSource != "")
-			{
-				scene.remove(barrel.lightSource);
+		if (
+			Math.abs(barrel.model.position.x) >= 150 ||
+			Math.abs(barrel.model.position.z) >= 150
+		) {
+			barrel.visible = false;
+			scene.remove(barrel.model);
+			if (barrel.model.lightSource != "") {
+				scene.remove(barrel.model.lightSource);
 			}
-			allBarrels[key] = "";
+            // console.log("remove");
+			allBarrels[i] = "";
 		}
-		[x, y, z] = barrel.getVelocity()
+		[x, y, z] = barrel.getVelocity();
 		barrel.translateModel([x, y, z]);
-		if (barrel.lightSource != "")
-		{
+		if (barrel.lightSource != "") {
 			barrel.lightSource.position.set(...[x, y, z]);
 		}
 	}
 }
 
+let cameraPOV = 3;
 function updateCamera() {
-	if (document.getElementById("third").checked == true) {
-		camera.position.set(0.0, 50.0, 0.0);
-		camera.lookAt(...Mario.model.position);
+	if (cameraPOV == 3) {
+		camera.position.set(220.0, 100.0, 0.0);
+		camera.lookAt(...Floor.model.position);
 	}
-    if (document.getElementById("first").checked == true) {
-		let x, y, z;
-		[x, y, z] = Mario.getVelocity();
-		if (x != 0 || z != 0)
-		{
-			camera.lookAt(x * 1000 + Mario.model.position.x, Mario.model.position.y, z * 1000 + Mario.model.position.z);
-		}
-		camera.position.set(Mario.model.position.x, Mario.model.position.y + 3, Mario.model.position.z);
+	if (cameraPOV == 1) {
+
+		camera.lookAt(-5000, -1500, 0);
+
+		camera.position.set(
+			Mario.model.position.x + 20,
+			Mario.model.position.y + 20,
+			Mario.model.position.z
+		);
 	}
-	
 }
 
 function spawnNewBarrel() {
 	let newBarrel = new Model();
 	newBarrel.setModel(Barrel.getModel().clone(true));
-	newBarrel.translateModel([
-		Math.random() * 100 - 50,
-		Math.random() * -25,
-		Math.random() * 100 - 50,
-	]);
-	newBarrel.scaleModel([0.05, 0.035, 0.05]);
+	newBarrel.translateModel([-150, -25, Math.random() * 280 - 140]);
+	newBarrel.scaleModel(barrelSize);
 	newBarrel.rotateModel([Math.PI / 2, 0, 0]);
-	newBarrel.setVelocity([Math.random() - 0.5, Math.random() * -2.0 - 1, Math.random() - 0.5]);
+    newBarrel.setVelocity([barrelSpeed, Math.random() * -2.0 - 1, 0]);
+    
 	let x, y, z;
-	[x, y, z] = newBarrel.getVelocity()
+	[x, y, z] = newBarrel.getVelocity();
 	let rotate_angle = "";
-	if (x >= 0 && z >= 0)
-	{
+	if (x >= 0 && z >= 0) {
 		rotate_angle = Math.atan(x / z);
-	}
-	else if (x >= 0 && z == 0.0)
-	{
+	} else if (x >= 0 && z == 0.0) {
 		rotate_angle = Math.PI / 2;
-	}
-	else if (x >= 0 && z <= 0.0)
-	{
+	} else if (x >= 0 && z <= 0.0) {
 		rotate_angle = Math.atan(z / x) + Math.PI;
-	}
-	else if (x == 0.0 && z <= 0.0)
-	{
+	} else if (x == 0.0 && z <= 0.0) {
 		rotate_angle = Math.PI;
-	}
-	else if (x == 0.0 && z >= 0)
-	{
+	} else if (x == 0.0 && z >= 0) {
 		rotate_angle = Math.PI * 2;
 	}
-	if (x <= 0.0 && z >= 0)
-	{
+	if (x <= 0.0 && z >= 0) {
 		rotate_angle = Math.atan(z / x) + Math.PI * 2;
-	}
-	else if (x <= 0.0 && z == 0.0)
-	{
-		rotate_angle = Math.PI * 3 / 2;
-	}
-	else if (x <= 0.0 && z <= 0.0)
-	{
+	} else if (x <= 0.0 && z == 0.0) {
+		rotate_angle = (Math.PI * 3) / 2;
+	} else if (x <= 0.0 && z <= 0.0) {
 		rotate_angle = Math.atan(z / x) + Math.PI;
 	}
-	if (rotate_angle != "")
-	{
-		newBarrel.rotateModel( [Math.PI / 2, 0.0, rotate_angle + Math.PI / 2] );
+	if (rotate_angle != "") {
+		newBarrel.rotateModel([
+			Math.PI / 2,
+			0.0,
+			-(rotate_angle + Math.PI / 2),
+		]);
 	}
 
-	if (Math.round(Math.random() * 10) == 10)
-	{
-		newBarrel.lightSource = new THREE.PointLight( 0xff0000, 2, 100, 1 );
-		newBarrel.lightSource.position.set( ...newBarrel.getModel().position );
-		scene.add( newBarrel.lightSource );
+	if (Math.round(Math.random() * 10) == 10) {
+		newBarrel.lightSource = new THREE.PointLight(0xff0000, 2, 100, 1);
+		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
+		scene.add(newBarrel.lightSource);
 		newBarrel.model.traverse(function (child) {
-			if (child.isMesh)
-			{
+			if (child.isMesh) {
 				child.material = child.material.clone();
 				child.material.color.r = 0xff;
 				child.material.color.g = 0x0;
@@ -388,14 +389,12 @@ function spawnNewBarrel() {
 		});
 	}
 
-	if (Math.round(Math.random() * 10) == 9)
-	{
-		newBarrel.lightSource = new THREE.PointLight( 0x0000ff, 2, 100, 1 );
-		newBarrel.lightSource.position.set( ...newBarrel.getModel().position );
-		scene.add( newBarrel.lightSource );
+	if (Math.round(Math.random() * 10) == 9) {
+		newBarrel.lightSource = new THREE.PointLight(0x0000ff, 2, 100, 1);
+		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
+		scene.add(newBarrel.lightSource);
 		newBarrel.model.traverse(function (child) {
-			if (child.isMesh)
-			{
+			if (child.isMesh) {
 				child.material = child.material.clone();
 				child.material.color.r = 0x0;
 				child.material.color.g = 0x0;
@@ -404,14 +403,12 @@ function spawnNewBarrel() {
 		});
 	}
 
-	if (Math.round(Math.random() * 10) == 8)
-	{
-		newBarrel.lightSource = new THREE.PointLight( 0x00ff00, 2, 100, 1 );
-		newBarrel.lightSource.position.set( ...newBarrel.getModel().position );
-		scene.add( newBarrel.lightSource );
+	if (Math.round(Math.random() * 10) == 8) {
+		newBarrel.lightSource = new THREE.PointLight(0x00ff00, 2, 100, 1);
+		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
+		scene.add(newBarrel.lightSource);
 		newBarrel.model.traverse(function (child) {
-			if (child.isMesh)
-			{
+			if (child.isMesh) {
 				child.material = child.material.clone();
 				child.material.color.r = 0x0;
 				child.material.color.g = 0xff;
@@ -422,4 +419,21 @@ function spawnNewBarrel() {
 
 	newBarrel.addToScene(scene);
 	allBarrels.push(newBarrel);
+}
+
+let spawnTime = 1000;
+
+let barrelSpawn = setInterval(function () {
+	spawnNewBarrel();
+}, spawnTime);
+
+setInterval(increaseDifficulty, 10000);
+
+function increaseDifficulty() {
+    clearInterval(barrelSpawn);
+    spawnTime = spawnTime / 2;
+    barrelSpawn = setInterval(function () {
+        spawnNewBarrel();
+    }
+    , spawnTime);
 }
