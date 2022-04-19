@@ -1,16 +1,15 @@
 "use strict";
 import * as THREE from "./js/three.module.js";
-import { TrackballControls } from "./js/TrackballControls.js";
 import { Model } from "./modelLib.js";
 import * as model from "./model.js";
 
 let barrelSize = [0.1, 0.07, 0.1];
 let barrelSpeed = 4;
+let currentNumBarrels = 0;
 var scene;
 var camera;
 var light;
 var renderer;
-var trackballControls;
 const WIDTH = window.innerWidth - 10;
 const HEIGHT = window.innerHeight - 20;
 
@@ -91,14 +90,13 @@ window.onload = async function init() {
 	scene.add(light);
 
 	const plight = new THREE.PointLight(0x888888, 3);
-	plight.position.set(50, 50, 50);
+	plight.position.set(100, 50, 50);
 	scene.add(plight);
 
 	renderer = new THREE.WebGLRenderer();
 	renderer.setSize(WIDTH, HEIGHT);
 	document.body.appendChild(renderer.domElement);
 
-	trackballControls = new TrackballControls(camera, renderer.domElement);
 	document.body.addEventListener("keydown", handleKeys);
 	document.body.addEventListener("keyup", handleKeys);
 
@@ -108,7 +106,6 @@ window.onload = async function init() {
 };
 
 function animate() {
-	// trackballControls.update();
 	renderer.render(scene, camera);
 	requestAnimationFrame(animate);
 
@@ -292,7 +289,6 @@ function updateModels() {
 		Mario.rotateModel([0, rotate_angle, 0]);
     }
     
-
 	
 	for(let i = 0; i < allBarrels.length; i++) {
 		let barrel = allBarrels[i];
@@ -304,10 +300,12 @@ function updateModels() {
 			Math.abs(barrel.model.position.x) >= 150 ||
 			Math.abs(barrel.model.position.z) >= 150
 		) {
+			currentNumBarrels--;
 			barrel.visible = false;
 			scene.remove(barrel.model);
-			if (barrel.model.lightSource != "") {
-				scene.remove(barrel.model.lightSource);
+			if (barrel.lightSource != "") {
+				barrel.lightSource.intensity = 0;
+				barrel.lightSource = "";
 			}
             // console.log("remove");
 			allBarrels[i] = "";
@@ -339,6 +337,7 @@ function updateCamera() {
 }
 
 function spawnNewBarrel() {
+	if (currentNumBarrels >= 10) {return;}
 	let newBarrel = new Model();
 	newBarrel.setModel(Barrel.getModel().clone(true));
 	newBarrel.translateModel([-150, -25, Math.random() * 280 - 140]);
@@ -376,7 +375,7 @@ function spawnNewBarrel() {
 	}
 
 	if (Math.round(Math.random() * 10) == 10) {
-		newBarrel.lightSource = new THREE.PointLight(0xff0000, 2, 100, 1);
+		newBarrel.lightSource = new THREE.PointLight(0xff0000, 3, 300, 1);
 		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
 		scene.add(newBarrel.lightSource);
 		newBarrel.model.traverse(function (child) {
@@ -390,7 +389,7 @@ function spawnNewBarrel() {
 	}
 
 	if (Math.round(Math.random() * 10) == 9) {
-		newBarrel.lightSource = new THREE.PointLight(0x0000ff, 2, 100, 1);
+		newBarrel.lightSource = new THREE.PointLight(0x0000ff, 3, 300, 1);
 		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
 		scene.add(newBarrel.lightSource);
 		newBarrel.model.traverse(function (child) {
@@ -404,7 +403,7 @@ function spawnNewBarrel() {
 	}
 
 	if (Math.round(Math.random() * 10) == 8) {
-		newBarrel.lightSource = new THREE.PointLight(0x00ff00, 2, 100, 1);
+		newBarrel.lightSource = new THREE.PointLight(0x00ff00, 3, 300, 1);
 		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
 		scene.add(newBarrel.lightSource);
 		newBarrel.model.traverse(function (child) {
@@ -417,6 +416,7 @@ function spawnNewBarrel() {
 		});
 	}
 
+	currentNumBarrels++;
 	newBarrel.addToScene(scene);
 	allBarrels.push(newBarrel);
 }
