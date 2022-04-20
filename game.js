@@ -2,10 +2,18 @@
 import * as THREE from "./js/three.module.js";
 import { Model } from "./modelLib.js";
 import * as model from "./model.js";
+import { FontLoader } from "./js/FontLoader.js";
+import { TextGeometry } from "./js/TextGeometry.js";
+
 
 let barrelSize = [0.1, 0.07, 0.1];
-let barrelSpeed = 4;
+let barrelSpeed = 3;
 let currentNumBarrels = 0;
+let kongAngle = 0;
+var textMeshR;
+var textMeshG;
+var textMeshB;
+var currentText = 0;
 var scene;
 var camera;
 var light;
@@ -14,6 +22,7 @@ const WIDTH = window.innerWidth - 10;
 const HEIGHT = window.innerHeight - 20;
 
 let Mario = new Model();
+let Kong = new Model();
 let Barrel = new Model();
 let Floor = new Model();
 
@@ -44,6 +53,45 @@ async function loadAllModels() {
 		Mario.rotateModel([0, 0, 0]);
 		Mario.addToScene(scene);
 		Mario.setVelocity([0.0, 0.0, 0.0]);
+
+		let KongModel;
+		Kong.setModel(
+			await Promise.resolve(
+				model.loadModel(
+					"./models/kong.png",
+					"./models/kong.obj",
+					[0, 0, 0],
+					1
+				)
+			).then(function (value) {
+				KongModel = value;
+			})
+		);
+		Kong.setModel(KongModel);
+		Kong.translateModel([-30, -25, 0.0]);
+		Kong.scaleModel([10, 10, 10]);
+		Kong.rotateModel([0, Math.PI / 2, 0]);
+		Kong.addToScene(scene);
+
+		let loader = new FontLoader();
+		let font = await Promise.resolve (
+				loader.loadAsync('./fonts/evil.json', () => {})
+		);
+		var kongTextP = new TextGeometry( "I have the princess", {font: font, size: 15, height: 5} );
+		var kongTextB = new TextGeometry( "I will beat you", {font: font, size: 15, height: 5} );
+		var kongTextL = new TextGeometry( "You will lose", {font: font, size: 15, height: 5} );
+		var textMaterialR = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+		var textMaterialG = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+		var textMaterialB = new THREE.MeshPhongMaterial( { color: 0x0000ff } );
+		textMeshR = new THREE.Mesh( kongTextP, textMaterialR );
+		textMeshG = new THREE.Mesh( kongTextB, textMaterialG );
+		textMeshB = new THREE.Mesh( kongTextL, textMaterialB );
+		textMeshR.position.set( 10, 10, 10 );
+		textMeshG.position.set( 10, 10, 10 );
+		textMeshB.position.set( 10, 10, 10 );
+		scene.add( textMeshR );
+		scene.add( textMeshG );
+		scene.add( textMeshB );
 
 		let BarrelModel;
 		Barrel.setModel(
@@ -113,6 +161,7 @@ function animate() {
 	checkCollisions();
 	updateModels();
     updateCamera();
+	updateKong();
 }
 
 // keys that are pressed
@@ -208,10 +257,30 @@ function checkCollisions() {
 		if (
 			allBarrels[i].getBoundingBox().intersectsBox(Mario.getBoundingBox())
 		) {
-			decrementHP();
+			if (allBarrels[i].lightSource == "")
+			{
+				decrementHP();
+			}
+			else
+			{
+				if (allBarrels[i].lightSource.color.r == 1)
+				{
+					decrementHP();
+					decrementHP();
+				}
+				if (allBarrels[i].lightSource.color.g == 1)
+				{
+					incrementHP();
+				}
+				if (allBarrels[i].lightSource.color.b == 1)
+				{
+					barrelSpeed = 1;
+				}
+			}
 			invincibility = true;
 			setTimeout(function () {
 				invincibility = false;
+				barrelSpeed = 3;
 			}, 1000);
 		}
 	}
@@ -289,7 +358,6 @@ function updateModels() {
 		Mario.rotateModel([0, rotate_angle, 0]);
     }
     
-	
 	for(let i = 0; i < allBarrels.length; i++) {
 		let barrel = allBarrels[i];
 
@@ -307,7 +375,6 @@ function updateModels() {
 				barrel.lightSource.intensity = 0;
 				barrel.lightSource = "";
 			}
-            // console.log("remove");
 			allBarrels[i] = "";
 		}
 		[x, y, z] = barrel.getVelocity();
@@ -316,6 +383,17 @@ function updateModels() {
 			barrel.lightSource.position.set(...[x, y, z]);
 		}
 	}
+	for(let i = 0; i < allBarrels.length; ) {
+		if (allBarrels[i] == "")
+		{
+			allBarrels.splice(i, 1);
+		}
+		else
+		{
+			i++;
+		}
+	}
+	
 }
 
 let cameraPOV = 3;
@@ -437,3 +515,44 @@ function increaseDifficulty() {
     }
     , spawnTime);
 }
+
+function updateKong() {
+	let x, y, z;
+	[x, y, z] = Mario.model.position;
+	y = 0;
+	let xpos = Math.cos(kongAngle) * 50;
+	let zpos = Math.sin(kongAngle) * 50;
+	kongAngle += Math.PI / 100;
+	Kong.setPosition([x + xpos, y + 40, z + zpos]);
+	Kong.rotateModel([0, Math.PI * 3 / 2 - kongAngle, 0]);
+	if (currentText == 0)
+	{
+		textMeshR.position.x = x + xpos;
+		textMeshR.position.y = y + 80;
+		textMeshR.position.z = z + zpos;
+		textMeshR.rotation.y = Math.PI * 3 / 2 - kongAngle;
+		textMeshG.position.y = 500;
+		textMeshB.position.y = 500;
+	}
+	if (currentText == 1)
+	{
+		textMeshG.position.x = x + xpos;
+		textMeshG.position.y = y + 80;
+		textMeshG.position.z = z + zpos;
+		textMeshG.rotation.y = Math.PI * 3 / 2 - kongAngle;
+		textMeshR.position.y = 500;
+		textMeshB.position.y = 500;
+	}
+	if (currentText == 2)
+	{
+		textMeshB.position.x = x + xpos;
+		textMeshB.position.y = y + 80;
+		textMeshB.position.z = z + zpos;
+		textMeshB.rotation.y = Math.PI * 3 / 2 - kongAngle;
+		textMeshG.position.y = 500;
+		textMeshR.position.y = 500;
+	}
+}
+setInterval(function() {
+	currentText = Math.floor(Math.random() * 3);
+}, 1000);

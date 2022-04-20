@@ -11,6 +11,10 @@ function decrementHP() {
             document.getElementById("gameOver").innerHTML = "<h1>Game Over</h1> <h2>Refresh to Restart</h2>";
 
 		}
+        if (health == 3) {
+            document.getElementById("health").innerHTML =
+                '<img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50">';
+        }
 		if (health == 2) {
 			document.getElementById("health").innerHTML =
 				'<img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50">';
@@ -20,6 +24,29 @@ function decrementHP() {
 				'<img src="heart.jpg" id="heart" alt="heart" width="50" height="50">';
 		}
     }
+}
+
+function incrementHP() {
+    if (!invincibility) {
+        health++; 
+        if (health >= 4)
+        {
+            health = 4;
+        }
+        
+        if (health == 4) {
+            document.getElementById("health").innerHTML =
+                '<img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50">';
+        }
+        if (health == 3) {
+            document.getElementById("health").innerHTML =
+                '<img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50">';
+        }
+        if (health == 2) {
+            document.getElementById("health").innerHTML =
+                '<img src="heart.jpg" id="heart" alt="heart" width="50" height="50"><img src="heart.jpg" id="heart" alt="heart" width="50" height="50">';
+        }
+    }     
 }
 
 
