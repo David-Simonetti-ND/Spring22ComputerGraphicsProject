@@ -530,7 +530,7 @@ function updateKong() {
 		textMeshR.position.x = x + xpos;
 		textMeshR.position.y = y + 80;
 		textMeshR.position.z = z + zpos;
-		textMeshR.rotation.y = Math.PI * 3 / 2 - kongAngle;
+		textMeshR.rotation.y = Math.PI / 2;
 		textMeshG.position.y = 500;
 		textMeshB.position.y = 500;
 	}
@@ -539,7 +539,7 @@ function updateKong() {
 		textMeshG.position.x = x + xpos;
 		textMeshG.position.y = y + 80;
 		textMeshG.position.z = z + zpos;
-		textMeshG.rotation.y = Math.PI * 3 / 2 - kongAngle;
+		textMeshG.rotation.y = Math.PI / 2;
 		textMeshR.position.y = 500;
 		textMeshB.position.y = 500;
 	}
@@ -548,7 +548,7 @@ function updateKong() {
 		textMeshB.position.x = x + xpos;
 		textMeshB.position.y = y + 80;
 		textMeshB.position.z = z + zpos;
-		textMeshB.rotation.y = Math.PI * 3 / 2 - kongAngle;
+		textMeshB.rotation.y = Math.PI / 2;
 		textMeshG.position.y = 500;
 		textMeshR.position.y = 500;
 	}
