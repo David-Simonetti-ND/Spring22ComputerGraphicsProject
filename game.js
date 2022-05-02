@@ -37,7 +37,6 @@ async function loadAllModels() {
 				model.loadModel(
 					"./models/hat.png",
 					"./models/Mario.FBX",
-					[0, 0, 0],
 					0
 				)
 			).then(function (value) {
@@ -60,7 +59,6 @@ async function loadAllModels() {
 				model.loadModel(
 					"./models/kong.png",
 					"./models/kong.obj",
-					[0, 0, 0],
 					1
 				)
 			).then(function (value) {
@@ -99,7 +97,6 @@ async function loadAllModels() {
 				model.loadModel(
 					"./models/barrel.png",
 					"./models/barrel.obj",
-					[0, 0, 0],
 					1
 				)
 			).then(function (value) {

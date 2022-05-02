@@ -11,7 +11,6 @@ import { FBXLoader } from "./js/FBXLoader.js";
 export async function loadModel(
 	texturepath,
 	modelpath,
-	color,
 	isOBJLoader,
 
 ) {
@@ -29,11 +28,6 @@ export async function loadModel(
 		object.traverse(function (child) {
 			if (child instanceof THREE.Mesh) {
 				child.material.map = texture;
-				if (color[0] != 0) {
-					child.material.color.r = color[0];
-					child.material.color.g = color[1];
-					child.material.color.b = color[2];
-				}
 			}
 		});
 		resolve(object);
