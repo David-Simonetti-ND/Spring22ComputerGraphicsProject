@@ -1,0 +1,90 @@
+newmtl Eyeball__EyePupilLeftMTSG
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioEye_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG1
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioEyeBall_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG2
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioEyePupil_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG3
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioEyePupil_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG4
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioFace_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG5
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioHair_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG6
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioHairFace_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG7
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioHand_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG8
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioColorClassicBody_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00
+newmtl Eyeball__EyePupilLeftMTSG9
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.59 0.59 0.59
+Tf 1.00 1.00 1.00
+map_Kd MarioColorClassicCap_alb.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 0.00

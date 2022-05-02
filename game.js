@@ -5,7 +5,6 @@ import * as model from "./model.js";
 import { FontLoader } from "./js/FontLoader.js";
 import { TextGeometry } from "./js/TextGeometry.js";
 
-
 let barrelSize = [0.1, 0.07, 0.1];
 let barrelSpeed = 3;
 let currentNumBarrels = 0;
@@ -21,6 +20,8 @@ var renderer;
 const WIDTH = window.innerWidth - 10;
 const HEIGHT = window.innerHeight - 20;
 
+let marioSize = 0.025;
+
 let Mario = new Model();
 let Kong = new Model();
 let Barrel = new Model();
@@ -31,22 +32,47 @@ let allBarrels = [];
 async function loadAllModels() {
 	return new Promise(async (resolve) => {
 		// load model
-		let MarioModel;
-		Mario.setModel(
-			await Promise.resolve(
-				model.loadModel(
-					"./models/hat.png",
-					"./models/Mario.FBX",
-					0
-				)
-			).then(function (value) {
-				MarioModel = value;
-			})
-		);
+		let MarioModel1;
+		let MarioModel2;
+		let MarioModel3;
 
-		let marioSize = 0.025;
+		await Promise.resolve(
+			model.loadModel(
+				"./models/Mario_run1/Mario_run1.mtl",
+				"./models/Mario_run1/Mario_run1.obj",
+				2
+			)
+		).then(function (value) {
+			MarioModel1 = value;
+		});
+
+		await Promise.resolve(
+			model.loadModel(
+				"./models/Mario_run2/Mario_run2.mtl",
+				"./models/Mario_run2/Mario_run2.obj",
+				2
+			)
+		).then(function (value) {
+			MarioModel2 = value;
+		});
+
+		await Promise.resolve(
+			model.loadModel(
+				"./models/Mario_jump/Mario_jump.mtl",
+				"./models/Mario_jump/Mario_jump.obj",
+				2
+			)
+		).then(function (value) {
+			MarioModel3 = value;
+		});
+
 		// set starting position
-		Mario.setModel(MarioModel);
+		Mario.setModel(MarioModel1);
+
+		Mario.addModel(MarioModel1);
+		Mario.addModel(MarioModel2);
+		Mario.addModel(MarioModel3);
+
 		Mario.translateModel([-30, -25, 0.0]);
 		Mario.scaleModel([marioSize, marioSize, marioSize]);
 		Mario.rotateModel([0, 0, 0]);
@@ -56,11 +82,7 @@ async function loadAllModels() {
 		let KongModel;
 		Kong.setModel(
 			await Promise.resolve(
-				model.loadModel(
-					"./models/kong.png",
-					"./models/kong.obj",
-					1
-				)
+				model.loadModel("./models/kong.png", "./models/kong.obj", 1)
 			).then(function (value) {
 				KongModel = value;
 			})
@@ -72,33 +94,41 @@ async function loadAllModels() {
 		Kong.addToScene(scene);
 
 		let loader = new FontLoader();
-		let font = await Promise.resolve (
-				loader.loadAsync('./fonts/evil.json', () => {})
+		let font = await Promise.resolve(
+			loader.loadAsync("./fonts/evil.json", () => {})
 		);
-		var kongTextP = new TextGeometry( "I have the princess", {font: font, size: 15, height: 5} );
-		var kongTextB = new TextGeometry( "I will beat you", {font: font, size: 15, height: 5} );
-		var kongTextL = new TextGeometry( "You will lose", {font: font, size: 15, height: 5} );
-		var textMaterialR = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
-		var textMaterialG = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-		var textMaterialB = new THREE.MeshPhongMaterial( { color: 0x0000ff } );
-		textMeshR = new THREE.Mesh( kongTextP, textMaterialR );
-		textMeshG = new THREE.Mesh( kongTextB, textMaterialG );
-		textMeshB = new THREE.Mesh( kongTextL, textMaterialB );
-		textMeshR.position.set( 10, 10, 10 );
-		textMeshG.position.set( 10, 10, 10 );
-		textMeshB.position.set( 10, 10, 10 );
-		scene.add( textMeshR );
-		scene.add( textMeshG );
-		scene.add( textMeshB );
+		var kongTextP = new TextGeometry("I have the princess", {
+			font: font,
+			size: 15,
+			height: 5,
+		});
+		var kongTextB = new TextGeometry("I will beat you", {
+			font: font,
+			size: 15,
+			height: 5,
+		});
+		var kongTextL = new TextGeometry("You will lose", {
+			font: font,
+			size: 15,
+			height: 5,
+		});
+		var textMaterialR = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+		var textMaterialG = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+		var textMaterialB = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+		textMeshR = new THREE.Mesh(kongTextP, textMaterialR);
+		textMeshG = new THREE.Mesh(kongTextB, textMaterialG);
+		textMeshB = new THREE.Mesh(kongTextL, textMaterialB);
+		textMeshR.position.set(10, 10, 10);
+		textMeshG.position.set(10, 10, 10);
+		textMeshB.position.set(10, 10, 10);
+		scene.add(textMeshR);
+		scene.add(textMeshG);
+		scene.add(textMeshB);
 
 		let BarrelModel;
 		Barrel.setModel(
 			await Promise.resolve(
-				model.loadModel(
-					"./models/barrel.png",
-					"./models/barrel.obj",
-					1
-				)
+				model.loadModel("./models/barrel.png", "./models/barrel.obj", 1)
 			).then(function (value) {
 				BarrelModel = value;
 			})
@@ -157,8 +187,9 @@ function animate() {
 	gravity();
 	checkCollisions();
 	updateModels();
-    updateCamera();
+	updateCamera();
 	updateKong();
+	startAnimation();
 }
 
 // keys that are pressed
@@ -167,6 +198,7 @@ let right = false;
 let up = false;
 let down = false;
 let speed = 1;
+
 function handleKeys(event) {
 	// console.log(event.keyCode);
 
@@ -210,6 +242,7 @@ function handleKeys(event) {
 				} else {
 					cameraPOV = 1;
 				}
+				break;
 		}
 	} else if (event.type == "keyup") {
 		switch (event.keyCode) {
@@ -254,23 +287,17 @@ function checkCollisions() {
 		if (
 			allBarrels[i].getBoundingBox().intersectsBox(Mario.getBoundingBox())
 		) {
-			if (allBarrels[i].lightSource == "")
-			{
+			if (allBarrels[i].lightSource == "") {
 				decrementHP();
-			}
-			else
-			{
-				if (allBarrels[i].lightSource.color.r == 1)
-				{
+			} else {
+				if (allBarrels[i].lightSource.color.r == 1) {
 					decrementHP();
 					decrementHP();
 				}
-				if (allBarrels[i].lightSource.color.g == 1)
-				{
+				if (allBarrels[i].lightSource.color.g == 1) {
 					incrementHP();
 				}
-				if (allBarrels[i].lightSource.color.b == 1)
-				{
+				if (allBarrels[i].lightSource.color.b == 1) {
 					barrelSpeed = 1;
 				}
 			}
@@ -353,9 +380,9 @@ function updateModels() {
 	}
 	if (rotate_angle != "") {
 		Mario.rotateModel([0, rotate_angle, 0]);
-    }
-    
-	for(let i = 0; i < allBarrels.length; i++) {
+	}
+
+	for (let i = 0; i < allBarrels.length; i++) {
 		let barrel = allBarrels[i];
 
 		if (barrel == "") {
@@ -380,17 +407,13 @@ function updateModels() {
 			barrel.lightSource.position.set(...[x, y, z]);
 		}
 	}
-	for(let i = 0; i < allBarrels.length; ) {
-		if (allBarrels[i] == "")
-		{
+	for (let i = 0; i < allBarrels.length; ) {
+		if (allBarrels[i] == "") {
 			allBarrels.splice(i, 1);
-		}
-		else
-		{
+		} else {
 			i++;
 		}
 	}
-	
 }
 
 let cameraPOV = 3;
@@ -400,7 +423,6 @@ function updateCamera() {
 		camera.lookAt(...Floor.model.position);
 	}
 	if (cameraPOV == 1) {
-
 		camera.lookAt(-5000, -1500, 0);
 
 		camera.position.set(
@@ -412,14 +434,16 @@ function updateCamera() {
 }
 
 function spawnNewBarrel() {
-	if (currentNumBarrels >= 10) {return;}
+	if (currentNumBarrels >= 10) {
+		return;
+	}
 	let newBarrel = new Model();
 	newBarrel.setModel(Barrel.getModel().clone(true));
 	newBarrel.translateModel([-150, -25, Math.random() * 280 - 140]);
 	newBarrel.scaleModel(barrelSize);
 	newBarrel.rotateModel([Math.PI / 2, 0, 0]);
-    newBarrel.setVelocity([barrelSpeed, Math.random() * -2.0 - 1, 0]);
-    
+	newBarrel.setVelocity([barrelSpeed, Math.random() * -2.0 - 1, 0]);
+
 	let x, y, z;
 	[x, y, z] = newBarrel.getVelocity();
 	let rotate_angle = "";
@@ -505,12 +529,11 @@ let barrelSpawn = setInterval(function () {
 setInterval(increaseDifficulty, 10000);
 
 function increaseDifficulty() {
-    clearInterval(barrelSpawn);
-    spawnTime = spawnTime / 2;
-    barrelSpawn = setInterval(function () {
-        spawnNewBarrel();
-    }
-    , spawnTime);
+	clearInterval(barrelSpawn);
+	spawnTime = spawnTime / 2;
+	barrelSpawn = setInterval(function () {
+		spawnNewBarrel();
+	}, spawnTime);
 }
 
 function updateKong() {
@@ -521,9 +544,8 @@ function updateKong() {
 	let zpos = Math.sin(kongAngle) * 50;
 	kongAngle += Math.PI / 100;
 	Kong.setPosition([x + xpos, y + 40, z + zpos]);
-	Kong.rotateModel([0, Math.PI * 3 / 2 - kongAngle, 0]);
-	if (currentText == 0)
-	{
+	Kong.rotateModel([0, (Math.PI * 3) / 2 - kongAngle, 0]);
+	if (currentText == 0) {
 		textMeshR.position.x = x + xpos;
 		textMeshR.position.y = y + 80;
 		textMeshR.position.z = z + zpos;
@@ -531,8 +553,7 @@ function updateKong() {
 		textMeshG.position.y = 500;
 		textMeshB.position.y = 500;
 	}
-	if (currentText == 1)
-	{
+	if (currentText == 1) {
 		textMeshG.position.x = x + xpos;
 		textMeshG.position.y = y + 80;
 		textMeshG.position.z = z + zpos;
@@ -540,8 +561,7 @@ function updateKong() {
 		textMeshR.position.y = 500;
 		textMeshB.position.y = 500;
 	}
-	if (currentText == 2)
-	{
+	if (currentText == 2) {
 		textMeshB.position.x = x + xpos;
 		textMeshB.position.y = y + 80;
 		textMeshB.position.z = z + zpos;
@@ -550,6 +570,53 @@ function updateKong() {
 		textMeshR.position.y = 500;
 	}
 }
-setInterval(function() {
+setInterval(function () {
 	currentText = Math.floor(Math.random() * 3);
 }, 1000);
+
+let frame = 0;
+
+function animation() {
+
+	let curpos = Mario.getModel().position;
+	let currot = Mario.getModel().rotation;
+
+	let x = curpos.x;
+	let y = curpos.y;
+	let z = curpos.z;
+
+	let xrot = currot.x;
+	let yrot = currot.y;
+	let zrot = currot.z;
+
+	scene.remove(Mario.getModel());
+	Mario.setModel(Mario.modelList[frame]);
+
+	if (frame == 0) {
+		frame = 1;
+	} else {
+		frame = 0;
+    }
+    
+    // check if jumping
+    if (y > -25.4) {
+        frame = 2
+    }
+	Mario.scaleModel([marioSize, marioSize, marioSize]);
+
+	Mario.setPosition([x, y, z]);
+	Mario.rotateModel([xrot, yrot, zrot]);
+
+	Mario.addToScene(scene);
+}
+
+let start = 0;
+function startAnimation() {
+	if (start == 0) {
+		setInterval(function () {
+			animation();
+		}, 120);
+
+		start = 1;
+	}
+}
