@@ -4,6 +4,10 @@ import { Model } from "./modelLib.js";
 import * as model from "./model.js";
 import { FontLoader } from "./js/FontLoader.js";
 import { TextGeometry } from "./js/TextGeometry.js";
+// all the files in the "curves", "libs", and "js" folders come from the three.js library
+// the font in the fonts folder was obtained here https://www.dafont.com/bitmap.php and then converted to a json format
+// the mario and kong models were found here https://sketchfab.com/search?q=mario&type=models
+// video created the running and jumping animations based off of this
 
 let barrelSize = [0.1, 0.07, 0.1];
 let barrelSpeed = 3;
@@ -200,8 +204,6 @@ let down = false;
 let speed = 1;
 
 function handleKeys(event) {
-	// console.log(event.keyCode);
-
 	let curr_velocity = Mario.getVelocity();
 	if (event.type == "keydown") {
 		switch (event.keyCode) {
@@ -416,7 +418,6 @@ function updateModels() {
 			i++;
 		}
 	}
-	console.log(allBarrels.length);
 }
 
 let cameraPOV = 3;
