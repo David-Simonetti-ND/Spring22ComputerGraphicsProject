@@ -395,8 +395,10 @@ function updateModels() {
 			currentNumBarrels--;
 			barrel.visible = false;
 			scene.remove(barrel.model);
+			barrel.model.clear()
 			if (barrel.lightSource != "") {
 				barrel.lightSource.intensity = 0;
+				barrel.lightSource.dispose();
 				barrel.lightSource = "";
 			}
 			allBarrels[i] = "";
@@ -414,6 +416,7 @@ function updateModels() {
 			i++;
 		}
 	}
+	console.log(allBarrels.length);
 }
 
 let cameraPOV = 3;
@@ -473,7 +476,7 @@ function spawnNewBarrel() {
 		]);
 	}
 
-	if (Math.round(Math.random() * 10) == 10) {
+	if (Math.round(Math.random() * 25) == 10) {
 		newBarrel.lightSource = new THREE.PointLight(0xff0000, 3, 300, 1);
 		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
 		scene.add(newBarrel.lightSource);
@@ -487,7 +490,7 @@ function spawnNewBarrel() {
 		});
 	}
 
-	if (Math.round(Math.random() * 10) == 9) {
+	if (Math.round(Math.random() * 25) == 9) {
 		newBarrel.lightSource = new THREE.PointLight(0x0000ff, 3, 300, 1);
 		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
 		scene.add(newBarrel.lightSource);
@@ -501,7 +504,7 @@ function spawnNewBarrel() {
 		});
 	}
 
-	if (Math.round(Math.random() * 10) == 8) {
+	if (Math.round(Math.random() * 25) == 8) {
 		newBarrel.lightSource = new THREE.PointLight(0x00ff00, 3, 300, 1);
 		newBarrel.lightSource.position.set(...newBarrel.getModel().position);
 		scene.add(newBarrel.lightSource);
